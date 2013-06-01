@@ -1,0 +1,12 @@
+vim-asciidoc
+------------
+versio
+__Enhanced editing support for Asciidoc files in Vim__
+
+Reformatting
+~~~~~~~~~~~~
+
+By default, Vim does the wrong thing by reformatting Asciidoc's block
+delimiters as part of the paragraph. The vim-asciidoc plugin fixes
+that problem, correctly formatting blocks, lists and normal
+paragraphs.
