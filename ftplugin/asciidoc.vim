@@ -111,43 +111,82 @@ function s:asciidoc.formatexpr()
 endfunction
 
 function s:asciidoc.format_normal_mode(lnum, count)
-    echom "normal formatexpr(lnum,count): " . a:lnum . ", " . a:count
+  " echom "normal formatexpr(lnum,count): " . a:lnum . ", " . a:count
   let lnum = a:lnum
   let last_line = lnum + a:count
+  let real_last_line = last_line
   if lnum < last_line
     let lnum = self.skip_white_lines(lnum)
     let [lnum, line] = self.skip_fixed_lines(lnum)
     let last_line = self.find_last_line(last_line)
-      echom "normal formatexpr(first,last): " . lnum . ", " . last_line
+    " echom "normal formatexpr(first,last): " . lnum . ", " . last_line
     if last_line < lnum
-      call setpos('.', [0, a:lnum + a:count, 0, 0])
+      call setpos('.', [0, real_last_line, 0, 0])
       return 0
     endif
   endif
 
   call self.reformat_text(lnum, last_line)
 
-  " TODO: set cursor to a:count (TODO - adjust this for formatting changes)
-  " TODO: Move this line into the reformat_text call above
-  call setpos('.', [0, a:lnum + a:count, 0, 0])
+  call setpos('.', [0, lnum, 0, 0])
+  normal! }
   return 0
 endfunction
 
+function! s:asciidoc.split_list(list, token)
+  let list = a:list
+  let lists = []
+  let tlist = []
+  for l in list
+    if l =~ a:token
+      call add(lists, tlist)
+      let tlist = []
+    else
+      call add(tlist, l)
+    endif
+  endfor
+  call add(lists, tlist)
+  return lists
+endfunction
+
+function s:asciidoc.reformat_chunk(chunk, lnum)
+  let chunk_len = len(a:chunk)
+  " echom 'reformat_chunk: ' . a:lnum . ', ' . chunk_len
+  let rtext = Asif(a:chunk, 'asciidoc', ['setlocal formatexpr=', 'normal! gqap'])
+  let rtext_len = len(rtext)
+  if rtext_len != chunk_len
+    " echom rtext_len . ' != ' . chunk_len
+    " echom string(rtext)
+    " echom a:lnum . (chunk_len == 1 ? '' : ',+' . (chunk_len - 1)) . 'd'
+    exe a:lnum . ',' . (a:lnum + chunk_len - 1) . 'd'
+    call append(a:lnum-1, rtext)
+  endif
+  return rtext_len
+endfunction
+
 function s:asciidoc.reformat_text(lnum, last_line)
-  let lines = getline(a:lnum, a:last_line)
-  " let first = lines[0]
-  " if first =~ self.list_pattern
-  "   echom "we have a list"
-  " elseif first =~ '^\a'
-  "   echom "we have a paragraph"
-  " elseif first =~ '^\s\+'
-  "   echom "we have a literal paragraph"
-  " else
-  "   echom "what are you, my pretty?"
-  " endif
-  let rtext = Asif(lines, 'asciidoc', ['setlocal formatexpr=', 'normal! gqap'])
-  exe a:lnum . ',' . a:last_line . 'd'
-  call append(a:lnum-1, rtext)
+  " echom 'reformat_text: ' . a:lnum . ', ' . a:last_line
+  let lnum = a:lnum
+  let lines = getline(lnum, a:last_line)
+  " call s:asciidoc.identify_block(lines[0])
+  " split block on list joiner ('+') and format
+  " each piece separately, rejoining them again afterwards
+  for chunk in s:asciidoc.split_list(lines, '^+$')
+    let lnum += s:asciidoc.reformat_chunk(chunk, lnum) + 1
+  endfor
+endfunction
+
+function s:asciidoc.identify_block(line)
+  let line = a:line
+  if line =~ self.list_pattern
+    echom "we have a list"
+  elseif line =~ '^\a'
+    echom "we have a paragraph"
+  elseif line =~ '^\s\+'
+    echom "we have a literal paragraph"
+  else
+    echom "what are you, my pretty?"
+  endif
 endfunction
 
 function s:asciidoc.get_line(lnum)
@@ -173,6 +212,11 @@ function s:asciidoc.skip_fixed_lines(lnum)
       let [lnum, line] = self.get_next_line(lnum)
       let done = 0
     endif
+    " " skip list joiner
+    " if line =~ '^+$'
+    "   let [lnum, line] = self.get_next_line(lnum)
+    "   let done = 0
+    " endif
     " skip optional attribute or blockid
     if line =~ '^\['
       let [lnum, line] = self.get_next_line(lnum)
@@ -225,7 +269,6 @@ function s:asciidoc.find_last_line(lnum)
 endfunction
 
 function s:asciidoc.format_insert_mode(char)
-
 endfunction
 
 function s:asciidoc.skip_white_lines(lnum)
