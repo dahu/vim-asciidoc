@@ -1,7 +1,13 @@
 vim-asciidoc
 ------------
 
-__Enhanced editing support for Asciidoc files in Vim__
+__Enhanced editing support for http://asciidoc.org[Asciidoc] files in Vim__
+
+Dependencies
+~~~~~~~~~~~~
+
+* https://github.com/tomtom/tlib_vim
+* https://github.com/dahu/Asif
 
 Lists
 ~~~~~
@@ -40,4 +46,5 @@ vim-asciidoc merely bundles Stuart Rackham's original asciidoc syntax file.
 Snippets
 ~~~~~~~~
 
-vim-asciidoc provides several convenient snippets in the snipmate format.
+vim-asciidoc provides several convenient snippets in the
+https://github.com/garbas/vim-snipmate[snipmate] format.
