@@ -3,6 +3,7 @@
 " Author:       Stuart Rackham <srackham@gmail.com> (inspired by Felix
 "               Obenhuber's original asciidoc.vim script).
 " URL:          http://www.methods.co.nz/asciidoc/
+"               https://github.com/dahu/vim-asciidoc
 " Licence:      GPL (http://www.gnu.org)
 " Remarks:      Vim 6 or greater
 " Limitations:  See 'Appendix E: Vim Syntax Highlighter' in the AsciiDoc 'User

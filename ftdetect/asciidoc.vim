@@ -1,14 +1,15 @@
 " Vim filetype detection file
 " Language:     AsciiDoc
 " Maintainer:   Barry Arthur <barry.arthur@gmail.com>
-" URL:          http://www.methods.co.nz/asciidoc/
+" URL:          http://asciidoc.org/
+"               https://github.com/dahu/vim-asciidoc
 " Licence:      Licensed under the same terms as Vim itself
 " Remarks:      Vim 6 or greater
 
 augroup Asciidoc
   au!
   au BufRead *.txt,README,TODO,CHANGELOG,NOTES call s:FTasciidoc()
-  au BufNewFile *.asciidoc set filetype=asciidoc
+  au BufNewFile *.txt,*.asciidoc set filetype=asciidoc
 augroup END
 
 " Checks for a valid AsciiDoc document title after first skipping any
@@ -19,7 +20,7 @@ function! s:FTasciidoc()
   let n = 1
   while n < 50
     let line = getline(n)
-    let n = n + 1
+    let n += 1
     if line =~ '^/\{4,}$'
       if ! in_comment_block
         let in_comment_block = 1
@@ -35,18 +36,17 @@ function! s:FTasciidoc()
       break
     endif
   endwhile
-  if line !~ '.\{3,}'
-    return
-  endif
   let len = len(line)
-  let line = getline(n)
-  if line !~ '[-=]\{3,}'
+  if len < 3
     return
   endif
-  if len < len(line) - 3 || len > len(line) + 3
+  let nextline = getline(n)
+  if nextline !~ '[-=]\{3,}'
+    return
+  endif
+  let nextlen = len(nextline)
+  if len < (nextlen - 3) || len > (nextlen + 3)
     return
   endif
   set filetype=asciidoc
 endfunction
-
-" vim: et sw=2 sts=2:

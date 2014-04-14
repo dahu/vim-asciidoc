@@ -2,14 +2,17 @@
 " Barry Arthur, 2012 05 25
 
 setlocal foldmethod=marker
-setlocal spell spelllang=en_au
+if &spelllang == ''
+  setlocal spelllang=en
+endif
+setlocal spell
 setlocal autoindent expandtab softtabstop=2 shiftwidth=2 textwidth=70 wrap
 setlocal comments=://
 setlocal commentstring=//\ %s
 
 setlocal formatoptions+=tcroqln2
 setlocal indentkeys=!^F,o,O
-setlocal nosmartindent
+setlocal nosmartindent nocindent
 
 " headings
 nnoremap <leader>1 YpVr=o<ESC>
@@ -28,7 +31,7 @@ imap "" ``''<ESC>hi
 map "" i""
 
 " Easily reflow text
-nnoremap Q gqap
+nnoremap Q gqip
 
 " indent
 " ------
