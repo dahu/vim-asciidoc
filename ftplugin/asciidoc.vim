@@ -155,7 +155,7 @@ endfunction
 function s:asciidoc.reformat_chunk(chunk, lnum)
   let chunk_len = len(a:chunk)
   " echom 'reformat_chunk: ' . a:lnum . ', ' . chunk_len
-  let rtext = Asif(a:chunk, 'asciidoc', ['setlocal formatexpr=', 'normal! gqap'])
+  let rtext = Asif(a:chunk, 'asciidoc', ['setlocal indentexpr=', 'setlocal formatexpr=', 'normal! gqap'])
   let rtext_len = len(rtext)
   if rtext_len != chunk_len
     " echom rtext_len . ' != ' . chunk_len
