@@ -171,4 +171,14 @@ highlight link asciidocTwoLineTitle Title
 highlight link asciidocURL Macro
 let b:current_syntax = "asciidoc"
 
+" source block syntax highlighting
+if exists('g:loaded_SyntaxRange')
+  for lang in ['c', 'python', 'vim']
+    call SyntaxRange#Include(
+          \  '^\c\[source\s*,\s*' . lang . '\s*\]\s*$'
+          \, '\(\]\s*\n\)\@<![=-]\{4,\}'
+          \, lang)
+  endfor
+endif
+
 " vim: wrap et sw=2 sts=2:

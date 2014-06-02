@@ -7,8 +7,9 @@ Vim__
 Dependencies
 ~~~~~~~~~~~~
 
-* https://github.com/tomtom/tlib_vim
-* https://github.com/dahu/Asif
+* https://github.com/tomtom/tlib_vim[]
+* https://github.com/dahu/Asif[]
+* https://github.com/vim-scripts/SyntaxRange[]
 
 Lists
 ~~~~~
@@ -45,6 +46,13 @@ Syntax Highlighting
 
 vim-asciidoc merely bundles Stuart Rackham's original asciidoc syntax
 file.
+
+If you have the
+https://github.com/vim-scripts/SyntaxRange[SyntaxRange] plugin
+installed, source blocks within ++[=+-]++ blocks will be highlighted
+according to the named language. Currently only C, Python and VimL are
+highlighted by default. Submit a PR if you want to extend this set, or just
+add your own to ++~/.vim/after/syntax/asciidoc.vim++
 
 Snippets
 ~~~~~~~~

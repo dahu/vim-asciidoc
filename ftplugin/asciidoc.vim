@@ -14,6 +14,14 @@ setlocal formatoptions+=tcroqln2
 setlocal indentkeys=!^F,o,O
 setlocal nosmartindent nocindent
 
+let &l:makeprg="asciidoc"
+      \. ' -a urldata'
+      \. ' -a icons'
+      \. ' ' . get(b:, 'asciidoc_icons_dir', '-a iconsdir=./images/icons/')
+      \. ' ' . get(b:, 'asciidoc_backend', '')
+      \. ' %'
+
+
 " headings
 nnoremap <leader>1 YpVr=o<ESC>
 nnoremap <leader>2 YpVr-o<ESC>
@@ -281,3 +289,4 @@ function s:asciidoc.skip_white_lines(lnum)
   endwhile
   return lnum
 endfunction
+
