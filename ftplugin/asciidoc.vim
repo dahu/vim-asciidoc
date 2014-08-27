@@ -1,5 +1,17 @@
 " Asciidoc
-" Barry Arthur, 2012 05 25
+" Barry Arthur
+" 1.1, 2014-08-26
+
+" 'atx' or 'setext'
+if !exists('g:asciidoc_title_style')
+  let g:asciidoc_title_style = 'atx'
+endif
+
+" 'asymmetric' or 'symmetric'
+if !exists('g:asciidoc_title_style_atx')
+  let g:asciidoc_title_style_atx = 'asymmetric'
+endif
+
 
 setlocal foldmethod=marker
 if &spelllang == ''
@@ -14,6 +26,8 @@ setlocal formatoptions+=tcroqln2
 setlocal indentkeys=!^F,o,O
 setlocal nosmartindent nocindent
 
+" TODO: user option for asciidoc vs asciidoctor
+" TODO: user option for compiler options
 let &l:makeprg="asciidoc"
       \. ' -a urldata'
       \. ' -a icons'
@@ -21,13 +35,23 @@ let &l:makeprg="asciidoc"
       \. ' ' . get(b:, 'asciidoc_backend', '')
       \. ' %'
 
-
 " headings
-nnoremap <leader>1 YpVr=o<ESC>
-nnoremap <leader>2 YpVr-o<ESC>
-nnoremap <leader>3 YpVr~o<ESC>
-nnoremap <leader>4 YpVr^o<ESC>
-nnoremap <leader>5 YpVr+o<ESC>
+nnoremap <leader>1 :call asciidoc#set_section_title_level(1)<cr>
+nnoremap <leader>2 :call asciidoc#set_section_title_level(2)<cr>
+nnoremap <leader>3 :call asciidoc#set_section_title_level(3)<cr>
+nnoremap <leader>4 :call asciidoc#set_section_title_level(4)<cr>
+nnoremap <leader>5 :call asciidoc#set_section_title_level(5)<cr>
+
+" TODO: Make simple 'j/k' offsets honour setext style sections
+nnoremap <expr><silent> [[ asciidoc#find_prior_section_title()
+nnoremap <expr><silent> [] asciidoc#find_prior_section_title() . 'j'
+nnoremap <expr><silent> ]] asciidoc#find_next_section_title()
+nnoremap <expr><silent> ][ asciidoc#find_next_section_title() . 'k'
+
+xnoremap <expr><silent> [[ asciidoc#find_prior_section_title()
+xnoremap <expr><silent> [] asciidoc#find_prior_section_title() . 'j'
+xnoremap <expr><silent> ]] asciidoc#find_next_section_title()
+xnoremap <expr><silent> ][ asciidoc#find_next_section_title() . 'k'
 
 " allow multi-depth list chars (--, ---, ----, .., ..., ...., etc)
 syn match asciidocListBullet /^\s*[-*+]\+\s/
@@ -35,8 +59,8 @@ setlocal formatlistpat=^\\s*\\d\\+\\.\\s\\+\\\|^\\s*<\\d\\+>\\s\\+\\\|^\\s*[a-zA
 
 "Typing "" inserts a pair of quotes (``'') and places the cursor between
 "them. Works in both insert and command mode (switching to insert mode):
-imap "" ``''<ESC>hi
-map "" i""
+inoremap "" ``''<ESC>hi
+nmap     "" i""
 
 " Easily reflow text
 nnoremap Q gqip

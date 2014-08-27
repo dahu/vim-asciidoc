@@ -9,7 +9,7 @@
 augroup Asciidoc
   au!
   au BufRead *.txt,README,TODO,CHANGELOG,NOTES call s:FTasciidoc()
-  au BufNewFile *.txt,*.asciidoc set filetype=asciidoc
+  au BufRead,BufNewFile *.asciidoc,*.adoc,*.ad set filetype=asciidoc
 augroup END
 
 " Checks for a valid AsciiDoc document title after first skipping any
