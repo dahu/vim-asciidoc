@@ -53,9 +53,16 @@ xnoremap <expr><silent> [] asciidoc#find_prior_section_title() . 'j'
 xnoremap <expr><silent> ]] asciidoc#find_next_section_title()
 xnoremap <expr><silent> ][ asciidoc#find_next_section_title() . 'k'
 
+let s:asciidoc = {}
+let s:asciidoc.delimited_block_pattern = '^[-.~_+^=*\/]\{4,}\s*$'
+let s:asciidoc.heading_pattern = '^[-=~^+]\{4,}\s*$'
+let s:asciidoc.list_pattern = "^\\s*\\d\\+\\.\\s\\+\\\|^\\s*<\\d\\+>\\s\\+\\\|^\\s*[a-zA-Z.]\\.\\s\\+\\\|^\\s*[ivxIVX]\\+\\.\\s\\+\\\|^\\s*[*.+-]\\+\\s\\+"
+let s:asciidoc.itemization_pattern = '^\s*[-*+]\+\s'
+let s:asciidoc.enumeration_pattern = '^\s*\%(\d\+\|#\)\.\s\+'
+
 " allow multi-depth list chars (--, ---, ----, .., ..., ...., etc)
 syn match asciidocListBullet /^\s*[-*+]\+\s/
-setlocal formatlistpat=^\\s*\\d\\+\\.\\s\\+\\\|^\\s*<\\d\\+>\\s\\+\\\|^\\s*[a-zA-Z.]\\.\\s\\+\\\|^\\s*[ivxIVX]\\+\\.\\s\\+\\\|^\\s*[*.+-]\\+\\s\\+
+let &l:formatlistpat=s:asciidoc.list_pattern
 
 "Typing "" inserts a pair of quotes (``'') and places the cursor between
 "them. Works in both insert and command mode (switching to insert mode):
@@ -69,9 +76,6 @@ nnoremap Q gqip
 " ------
 setlocal indentexpr=GetAsciidocIndent()
 
-let s:itemization_pattern = '^\s*[-*+]\s'
-let s:enumeration_pattern = '^\s*\%(\d\+\|#\)\.\s\+'
-
 " stolen from the RST equivalent
 function! GetAsciidocIndent()
   let lnum = prevnonblank(v:lnum - 1)
@@ -82,32 +86,32 @@ function! GetAsciidocIndent()
   let ind = indent(lnum)
   let line = getline(lnum)
 
-  if line =~ s:itemization_pattern
-    let ind += 2
-  elseif line =~ s:enumeration_pattern
-    let ind += matchend(line, s:enumeration_pattern)
+  if line =~ s:asciidoc.itemization_pattern
+    let ind += matchend(line, s:asciidoc.itemization_pattern)
+  elseif line =~ s:asciidoc.enumeration_pattern
+    let ind += matchend(line, s:asciidoc.enumeration_pattern)
   endif
 
   let line = getline(v:lnum - 1)
 
-  " Indent :FIELD: lines.  Don’t match if there is no text after the field or
-  " if the text ends with a sent-ender.
-   if line =~ '^:.\+:\s\{-1,\}\S.\+[^.!?:]$'
-     return matchend(line, '^:.\{-1,}:\s\+')
-   endif
+  " " Indent :FIELD: lines.  Don’t match if there is no text after the field or
+  " " if the text ends with a sent-ender.
+  "  if line =~ '^:.\+:\s\{-1,\}\S.\+[^.!?:]$'
+  "    return matchend(line, '^:.\{-1,}:\s\+')
+  "  endif
 
-  if line =~ '^\s*$'
-    execute lnum
-    call search('^\s*\%([-*+]\s\|\%(\d\+\|#\)\.\s\|\.\.\|$\)', 'bW')
-    let line = getline('.')
-    if line =~ s:itemization_pattern
-      let ind -= 2
-    elseif line =~ s:enumeration_pattern
-      let ind -= matchend(line, s:enumeration_pattern)
-    elseif line =~ '^\s*\.\.'
-      let ind -= 3
-    endif
-  endif
+  " if line =~ '^\s*$'
+  "   execute lnum
+  "   call search('^\s*\%([-*+]\s\|\%(\d\+\|#\)\.\s\|\.\.\|$\)', 'bW')
+  "   let line = getline('.')
+  "   if line =~ s:asciidoc.itemization_pattern
+  "     let ind -= 2
+  "   elseif line =~ s:asciidoc.enumeration_pattern
+  "     let ind -= matchend(line, s:asciidoc.enumeration_pattern)
+  "   elseif line =~ '^\s*\.\.'
+  "     let ind -= 3
+  "   endif
+  " endif
 
   return ind
 endfunction
@@ -121,13 +125,6 @@ setlocal formatexpr=AsciidocFormatexpr()
 function! AsciidocFormatexpr()
   return s:asciidoc.formatexpr()
 endfunction
-
-let s:asciidoc = {}
-let s:asciidoc.delimited_block_pattern = '^[-.~_+^=*\/]\{4,}\s*$'
-let s:asciidoc.heading_pattern = '^[-=~^+]\{4,}\s*$'
-let s:asciidoc.list_pattern = "^\\s*\\d\\+\\.\\s\\+\\\|^\\s*<\\d\\+>\\s\\+\\\|^\\s*[a-zA-Z.]\\.\\s\\+\\\|^\\s*[ivxIVX]\\+\\.\\s\\+\\\|^\\s*[*.+-]\\+\\s\\+"
-
-" TODO: DRY the above line with the formatlistpat option above.
 
 function s:asciidoc.formatexpr()
   if mode() =~# '[iR]' && &formatoptions =~# 'a'
@@ -187,7 +184,7 @@ endfunction
 function s:asciidoc.reformat_chunk(chunk, lnum)
   let chunk_len = len(a:chunk)
   " echom 'reformat_chunk: ' . a:lnum . ', ' . chunk_len
-  let rtext = Asif(a:chunk, 'asciidoc', ['setlocal indentexpr=', 'setlocal formatexpr=', 'normal! gqap'])
+  let rtext = Asif(a:chunk, 'asciidoc', ['setlocal textwidth=' . &tw, 'setlocal indentexpr=', 'setlocal formatexpr=', 'normal! gqap'])
   let rtext_len = len(rtext)
   if rtext_len != chunk_len
     " echom rtext_len . ' != ' . chunk_len
