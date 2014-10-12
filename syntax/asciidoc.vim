@@ -17,6 +17,18 @@ syn clear
 syn sync fromstart
 syn sync linebreaks=1
 
+function! AsciidocEnableSyntaxRanges()
+" source block syntax highlighting
+if exists('g:loaded_SyntaxRange')
+  for lang in ['c', 'python', 'vim']
+    call SyntaxRange#Include(
+          \  '^\c\[source\s*,\s*' . lang . '.*\]\s*$'
+          \, '\(\]\s*\n\)\@<![=-]\{4,\}'
+          \, lang)
+  endfor
+endif
+endfunction
+
 " Run :help syn-priority to review syntax matching priority.
 syn keyword asciidocToDo TODO FIXME CHECK TEST XXX ZZZ DEPRECATED
 syn match asciidocBackslash /\\/
@@ -78,10 +90,12 @@ syn match asciidocTablePrefix /\(\S\@<!\(\([0-9.]\+\)\([*+]\)\)\?\([<\^>.]\{,3}\
 syn region asciidocTableBlock2 matchgroup=asciidocTableDelimiter2 start=/^!=\{3,}$/ end=/^!=\{3,}$/ keepend contains=ALL
 
 syn match asciidocListContinuation /^+$/
+syn region asciidocExampleBlock start=/^=\{4,}$/ end=/^=\{4,}$/ contains=asciidocCallout,asciidocToDo keepend
 syn region asciidocLiteralBlock start=/^\.\{4,}$/ end=/^\.\{4,}$/ contains=asciidocCallout,asciidocToDo keepend
 syn region asciidocListingBlock start=/^-\{4,}$/ end=/^-\{4,}$/ contains=asciidocCallout,asciidocToDo keepend
 syn region asciidocCommentBlock start="^/\{4,}$" end="^/\{4,}$" contains=asciidocToDo
 syn region asciidocPassthroughBlock start="^+\{4,}$" end="^+\{4,}$"
+
 
 " Allowing leading \w characters in the filter delimiter is to accomodate
 " the pre version 8.2.7 syntax and may be removed in future releases.
@@ -170,15 +184,5 @@ highlight link asciidocTriplePlusPassthrough Special
 highlight link asciidocTwoLineTitle Title
 highlight link asciidocURL Macro
 let b:current_syntax = "asciidoc"
-
-" source block syntax highlighting
-if exists('g:loaded_SyntaxRange')
-  for lang in ['c', 'python', 'vim']
-    call SyntaxRange#Include(
-          \  '^\c\[source\s*,\s*' . lang . '\s*\]\s*$'
-          \, '\(\]\s*\n\)\@<![=-]\{4,\}'
-          \, lang)
-  endfor
-endif
 
 " vim: wrap et sw=2 sts=2:
