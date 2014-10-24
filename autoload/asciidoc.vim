@@ -99,3 +99,19 @@ function! asciidoc#set_section_title_level(level)
     endif
   endif
 endfunction
+
+function! asciidoc#make_list(type) range
+  let old_search = @/
+  exe a:firstline . ',' . a:lastline . 's/^\s*\([*.]*\)\s*/\=repeat("' . a:type . '", max([1, len(submatch(1))]))." "/'
+  let @/ = old_search
+endfunction
+
+function! asciidoc#dent_list(in_out) range
+  let old_search = @/
+  if a:in_out == 'in'
+    silent! exe a:firstline . ',' . a:lastline . 's/^[*.]//'
+  else
+    silent! exe a:firstline . ',' . a:lastline . 's/^\([*.]\)/&&/'
+  endif
+  let @/ = old_search
+endfunction

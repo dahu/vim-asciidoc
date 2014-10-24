@@ -53,6 +53,11 @@ xnoremap <expr><silent> [] asciidoc#find_prior_section_title() . 'j'
 xnoremap <expr><silent> ]] asciidoc#find_next_section_title()
 xnoremap <expr><silent> ][ asciidoc#find_next_section_title() . 'k'
 
+xnoremap <silent> lu :call asciidoc#make_list('*')<cr>gv
+xnoremap <silent> lo :call asciidoc#make_list('.')<cr>gv
+xnoremap <silent> l< :call asciidoc#dent_list('in')<cr>gv
+xnoremap <silent> l> :call asciidoc#dent_list('out')<cr>gv
+
 let s:asciidoc = {}
 let s:asciidoc.delimited_block_pattern = '^[-.~_+^=*\/]\{4,}\s*$'
 let s:asciidoc.heading_pattern = '^[-=~^+]\{4,}\s*$'
