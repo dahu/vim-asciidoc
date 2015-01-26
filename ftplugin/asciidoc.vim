@@ -191,13 +191,8 @@ function s:asciidoc.reformat_chunk(chunk, lnum)
   " echom 'reformat_chunk: ' . a:lnum . ', ' . chunk_len
   let rtext = Asif(a:chunk, 'asciidoc', ['setlocal textwidth=' . &tw, 'setlocal indentexpr=', 'setlocal formatexpr=', 'normal! gqap'])
   let rtext_len = len(rtext)
-  if rtext_len != chunk_len
-    " echom rtext_len . ' != ' . chunk_len
-    " echom string(rtext)
-    " echom a:lnum . (chunk_len == 1 ? '' : ',+' . (chunk_len - 1)) . 'd'
-    exe a:lnum . ',' . (a:lnum + chunk_len - 1) . 'd'
-    call append(a:lnum-1, rtext)
-  endif
+  exe a:lnum . ',' . (a:lnum + chunk_len - 1) . 'd'
+  call append(a:lnum-1, rtext)
   return rtext_len
 endfunction
 
