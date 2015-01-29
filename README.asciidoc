@@ -7,9 +7,8 @@ Vim__
 Dependencies
 ~~~~~~~~~~~~
 
-* https://github.com/tomtom/tlib_vim[]
-* https://github.com/dahu/Asif[]
-* https://github.com/vim-scripts/SyntaxRange[]
+* https://github.com/dahu/Asif[] which depends on https://github.com/dahu/vimple[]
+* (optional) https://github.com/vim-scripts/SyntaxRange[]
 
 Lists
 ~~~~~

@@ -36,6 +36,10 @@ function! s:FTasciidoc()
       break
     endif
   endwhile
+  if line =~ '^[=#]\+\s\+\w'
+    set filetype=asciidoc
+    return
+  endif
   let len = len(line)
   if len < 3
     return
