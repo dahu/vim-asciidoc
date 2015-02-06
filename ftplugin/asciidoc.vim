@@ -62,7 +62,7 @@ let s:asciidoc = {}
 let s:asciidoc.delimited_block_pattern = '^[-.~_+^=*\/]\{4,}\s*$'
 let s:asciidoc.heading_pattern = '^[-=~^+]\{4,}\s*$'
 let s:asciidoc.list_pattern = "^\\s*\\d\\+\\.\\s\\+\\\|^\\s*<\\d\\+>\\s\\+\\\|^\\s*[a-zA-Z.]\\.\\s\\+\\\|^\\s*[ivxIVX]\\+\\.\\s\\+\\\|^\\s*[*.+-]\\+\\s\\+"
-let s:asciidoc.itemization_pattern = '^\s*[-*+]\+\s'
+let s:asciidoc.itemization_pattern = '^\s*[-*+.]\+\s'
 let s:asciidoc.enumeration_pattern = '^\s*\%(\d\+\|#\)\.\s\+'
 
 " allow multi-depth list chars (--, ---, ----, .., ..., ...., etc)
@@ -91,11 +91,12 @@ function! GetAsciidocIndent()
   let ind = indent(lnum)
   let line = getline(lnum)
 
-  if line =~ s:asciidoc.itemization_pattern
-    let ind += matchend(line, s:asciidoc.itemization_pattern)
-  elseif line =~ s:asciidoc.enumeration_pattern
-    let ind += matchend(line, s:asciidoc.enumeration_pattern)
-  endif
+  " Ignore special case for bullet lists
+  " if line =~ s:asciidoc.itemization_pattern
+  "   let ind += matchend(line, s:asciidoc.itemization_pattern)
+  " elseif line =~ s:asciidoc.enumeration_pattern
+  "   let ind += matchend(line, s:asciidoc.enumeration_pattern)
+  " endif
 
   let line = getline(v:lnum - 1)
 
