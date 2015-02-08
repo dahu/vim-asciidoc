@@ -61,21 +61,42 @@ xnoremap <silent> l> :call asciidoc#dent_list('out')<cr>gv
 let s:asciidoc = {}
 let s:asciidoc.delimited_block_pattern = '^[-.~_+^=*\/]\{4,}\s*$'
 let s:asciidoc.heading_pattern = '^[-=~^+]\{4,}\s*$'
-let s:asciidoc.list_pattern = "^\\s*\\d\\+\\.\\s\\+\\\|^\\s*<\\d\\+>\\s\\+\\\|^\\s*[a-zA-Z.]\\.\\s\\+\\\|^\\s*[ivxIVX]\\+\\.\\s\\+\\\|^\\s*[*.+-]\\+\\s\\+"
-let s:asciidoc.itemization_pattern = '^\s*[-*+.]\+\s'
-let s:asciidoc.enumeration_pattern = '^\s*\%(\d\+\|#\)\.\s\+'
+
+let s:asciidoc.list_pattern = ERex.parse('
+      \ \%(\_^\|\n\)       # explicitly_numbered
+      \   \s*
+      \   \d\+
+      \   \.
+      \   \s\+
+      \ \|
+      \ \%(\_^\|\n\)       # explicitly_alpha
+      \   \s*
+      \   [a-zA-Z]
+      \   \.
+      \   \s\+
+      \ \|
+      \ \%(\_^\|\n\)       # explicitly_roman
+      \   \s*
+      \   [ivxIVX]\+       # (must_end_in_")"
+      \   )
+      \   \s\+
+      \ \|
+      \ \%(\_^\|\n\)       # implicit
+      \   \s*
+      \   [-*+.]\+
+      \   \s\+
+      \')
+
+" DEPRECATED after accurate list_pattern definition above
+" let s:asciidoc.itemization_pattern = '^\s*[-*+.]\+\s'
 
 " allow multi-depth list chars (--, ---, ----, .., ..., ...., etc)
-syn match asciidocListBullet /^\s*[-*+]\+\s/
+exe 'syn match asciidocListBullet /' . s:asciidoc.list_pattern . '/'
 let &l:formatlistpat=s:asciidoc.list_pattern
 
-"Typing "" inserts a pair of quotes (``'') and places the cursor between
-"them. Works in both insert and command mode (switching to insert mode):
+"Typing "" in insert mode inserts a pair of quotes (``'') and places the
+"cursor between them.
 inoremap "" ``''<ESC>hi
-nmap     "" i""
-
-" Easily reflow text
-nnoremap Q gqip
 
 " indent
 " ------
@@ -88,43 +109,42 @@ function! GetAsciidocIndent()
     return 0
   endif
 
+  let [lnum, line] = s:asciidoc.skip_back_until_white_line(lnum)
   let ind = indent(lnum)
-  let line = getline(lnum)
 
-  " Ignore special case for bullet lists
-  " if line =~ s:asciidoc.itemization_pattern
-  "   let ind += matchend(line, s:asciidoc.itemization_pattern)
-  " elseif line =~ s:asciidoc.enumeration_pattern
-  "   let ind += matchend(line, s:asciidoc.enumeration_pattern)
-  " endif
+  " echom 'lnum=' . lnum
+  " echom 'ind=' . ind
+  " echom 'line=' . line
+
+  " Don't auto-indent within lists
+  if line =~ s:asciidoc.itemization_pattern
+    let ind = 0
+  endif
 
   let line = getline(v:lnum - 1)
-
-  " " Indent :FIELD: lines.  Don’t match if there is no text after the field or
-  " " if the text ends with a sent-ender.
-  "  if line =~ '^:.\+:\s\{-1,\}\S.\+[^.!?:]$'
-  "    return matchend(line, '^:.\{-1,}:\s\+')
-  "  endif
-
-  " if line =~ '^\s*$'
-  "   execute lnum
-  "   call search('^\s*\%([-*+]\s\|\%(\d\+\|#\)\.\s\|\.\.\|$\)', 'bW')
-  "   let line = getline('.')
-  "   if line =~ s:asciidoc.itemization_pattern
-  "     let ind -= 2
-  "   elseif line =~ s:asciidoc.enumeration_pattern
-  "     let ind -= matchend(line, s:asciidoc.enumeration_pattern)
-  "   elseif line =~ '^\s*\.\.'
-  "     let ind -= 3
-  "   endif
-  " endif
 
   return ind
 endfunction
 
+" format
+" ------
 
 " The following object and its functions is modified from Yukihiro Nakadaira's
 " autofmt example.
+
+" Easily reflow text
+" the gQ form (badly) tries to keep cursor position
+nnoremap <silent> <buffer> Q :call <SID>Q(1)<cr>
+nnoremap <silent> <buffer> gQ :call <SID>Q(0)<cr>
+
+function! s:Q(skip_block_after_format)
+  let pos = getpos('.')
+  norm! gqap
+  call setpos('.', pos)
+  if a:skip_block_after_format
+    normal! }
+  endif
+endfunction
 
 setlocal formatexpr=AsciidocFormatexpr()
 
@@ -133,6 +153,7 @@ function! AsciidocFormatexpr()
 endfunction
 
 function s:asciidoc.formatexpr()
+  " echom 'formatter called'
   if mode() =~# '[iR]' && &formatoptions =~# 'a'
     return 1
   elseif mode() !~# '[niR]' || (mode() =~# '[iR]' && v:count != 1) || v:char =~# '\s'
@@ -144,7 +165,8 @@ function s:asciidoc.formatexpr()
   if mode() == 'n'
     return self.format_normal_mode(v:lnum, v:count - 1)
   else
-    return self.format_insert_mode(v:char)
+    " We don't actually do anything in insert mode yet
+    " return self.format_insert_mode(v:char)
   endif
 endfunction
 
@@ -152,73 +174,80 @@ function s:asciidoc.format_normal_mode(lnum, count)
   " echom "normal formatexpr(lnum,count): " . a:lnum . ", " . a:count
   let lnum = a:lnum
   let last_line = lnum + a:count
-  let real_last_line = last_line
-  if lnum < last_line
-    let lnum = self.skip_white_lines(lnum)
-    let [lnum, line] = self.skip_fixed_lines(lnum)
-    let last_line = self.find_last_line(last_line)
-    " echom "normal formatexpr(first,last): " . lnum . ", " . last_line
-    if last_line < lnum
-      call setpos('.', [0, real_last_line, 0, 0])
-      return 0
-    endif
-  endif
+  let lnum = self.skip_white_lines(lnum)
+  let [lnum, line] = self.skip_fixed_lines(lnum)
+  let last_line = max([last_line, lnum])
+  let last_line = self.find_last_line(last_line)
+
+  " echom "normal formatexpr(first,last): " . lnum . ", " . last_line
+  " echom 'line = ' . line
+  " echom 'lnum = ' . lnum
+  " echom 'last_line = ' . last_line
 
   call self.reformat_text(lnum, last_line)
-
-  call setpos('.', [0, lnum, 0, 0])
-  normal! }
   return 0
 endfunction
 
-function! s:asciidoc.split_list(list, token)
-  let list = a:list
-  let lists = []
-  let tlist = []
-  for l in list
-    if l =~ a:token
-      call add(lists, tlist)
-      let tlist = []
-    else
-      call add(tlist, l)
-    endif
-  endfor
-  call add(lists, tlist)
-  return lists
+function s:asciidoc.reformat_chunk(chunk)
+  " echom 'reformat_chunk: ' . a:chunk[0]
+  return Asif(a:chunk, 'asciidoc', ['setlocal textwidth=' . &tw, 'setlocal indentexpr=', 'setlocal formatexpr=', 'normal! gqap'])
 endfunction
 
-function s:asciidoc.reformat_chunk(chunk, lnum)
-  let chunk_len = len(a:chunk)
-  " echom 'reformat_chunk: ' . a:lnum . ', ' . chunk_len
-  let rtext = Asif(a:chunk, 'asciidoc', ['setlocal textwidth=' . &tw, 'setlocal indentexpr=', 'setlocal formatexpr=', 'normal! gqap'])
-  let rtext_len = len(rtext)
-  exe a:lnum . ',' . (a:lnum + chunk_len - 1) . 'd'
-  call append(a:lnum-1, rtext)
-  return rtext_len
+function s:asciidoc.replace_chunk(chunk, lnum, last_line)
+  exe a:lnum . ',' . a:last_line . 'd'
+  undojoin
+  call append(a:lnum - 1, a:chunk)
 endfunction
 
 function s:asciidoc.reformat_text(lnum, last_line)
   " echom 'reformat_text: ' . a:lnum . ', ' . a:last_line
   let lnum = a:lnum
+  let last_line = a:last_line
   let lines = getline(lnum, a:last_line)
-  " call s:asciidoc.identify_block(lines[0])
-  " split block on list joiner ('+') and format
-  " each piece separately, rejoining them again afterwards
-  for chunk in s:asciidoc.split_list(lines, '^+$')
-    let lnum += s:asciidoc.reformat_chunk(chunk, lnum) + 1
-  endfor
+
+  let block = s:asciidoc.identify_block(lines[0])
+  " echom 'block=' . block
+
+  if block == 'literal'
+    " nothing to do
+  elseif block == 'para'
+    let formatted = s:asciidoc.reformat_chunk(lines)
+    if formatted != lines
+      call s:asciidoc.replace_chunk(formatted, lnum, last_line)
+    endif
+  elseif block == 'list'
+    let formatted = []
+
+    let elems = list#partition(
+          \ string#scanner(lines).split(
+          \   '\n\?\zs\(\(+\n\)\|\(' . s:asciidoc.list_pattern . '\)\)'
+          \   , 1)[1:], 2)
+    let elems = (type(elems[0]) == type([]) ? elems : [elems])
+    for chunk in map(elems
+          \ , 'v:val[0] . string#trim(substitute(v:val[1], "\\n\\s\\+", " ", "g"))')
+      call extend(formatted, s:asciidoc.reformat_chunk(chunk))
+    endfor
+    if formatted != lines
+      call s:asciidoc.replace_chunk(formatted, lnum, last_line)
+    endif
+  else
+    echohl Comment
+    echom 'vim-asciidoc: unknown block on ' . lnum . ": don't know how to format: " . strpart(lines[0], 0, 20) . '...'
+    echohl None
+  endif
 endfunction
 
 function s:asciidoc.identify_block(line)
   let line = a:line
   if line =~ self.list_pattern
-    echom "we have a list"
-  elseif line =~ '^\a'
-    echom "we have a paragraph"
+    return 'list'
+  elseif line =~ '^[*_`+]\{0,2}\a'
+    return 'para'
   elseif line =~ '^\s\+'
-    echom "we have a literal paragraph"
+    return 'literal'
   else
     echom "what are you, my pretty?"
+    return 'unknown'
   endif
 endfunction
 
@@ -256,7 +285,7 @@ function s:asciidoc.skip_fixed_lines(lnum)
       let done = 0
     endif
     " skip possible one-line heading
-    if line =~ '^=\+'
+    if line =~ '^=\+\s\+\a'
       let [lnum, line] = self.get_next_line(lnum)
       let done = 0
     endif
@@ -287,6 +316,16 @@ function s:asciidoc.find_last_line(lnum)
 
   while done == 0
     let done = 1
+    " skip until blank line
+    if line !~ '^\s*$'
+      let [lnum, line] = self.get_next_line(lnum)
+      let done = 0
+    endif
+  endwhile
+  let done = 0
+
+  while done == 0
+    let done = 1
     " skip possible blank lines
     if line =~ '^\s*$'
       let [lnum, line] = self.get_prev_line(lnum)
@@ -310,5 +349,14 @@ function s:asciidoc.skip_white_lines(lnum)
     let [lnum, line] = self.get_next_line(lnum)
   endwhile
   return lnum
+endfunction
+
+function s:asciidoc.skip_back_until_white_line(lnum)
+  let [lnum, line] = s:asciidoc.get_line(a:lnum)
+  while line !~ '^\s*$'
+    let [pn, pl] = [lnum, line]
+    let [lnum, line] = self.get_prev_line(lnum)
+  endwhile
+  return [pn, pl]
 endfunction
 
