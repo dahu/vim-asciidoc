@@ -6,7 +6,7 @@ endif
 let b:current_compiler = "asciidoc"
 
 if exists(":CompilerSet") != 2
-  command -nargs=* CompilerSet setlocal <args>
+  command! -nargs=* CompilerSet setlocal <args>
 endif
 
 " errorformat stolen from syntastic
