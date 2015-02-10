@@ -12,11 +12,13 @@ if !exists('g:asciidoc_title_style_atx')
   let g:asciidoc_title_style_atx = 'asymmetric'
 endif
 
+compiler asciidoc
 
 setlocal foldmethod=marker
 if &spelllang == ''
   setlocal spelllang=en
 endif
+
 setlocal spell
 setlocal autoindent expandtab softtabstop=2 shiftwidth=2 textwidth=70 wrap
 setlocal comments=://
@@ -25,15 +27,6 @@ setlocal commentstring=//\ %s
 setlocal formatoptions+=tcroqln2
 setlocal indentkeys=!^F,o,O
 setlocal nosmartindent nocindent
-
-" TODO: user option for asciidoc vs asciidoctor
-" TODO: user option for compiler options
-let &l:makeprg="asciidoc"
-      \. ' -a urldata'
-      \. ' -a icons'
-      \. ' ' . get(b:, 'asciidoc_icons_dir', '-a iconsdir=./images/icons/')
-      \. ' ' . get(b:, 'asciidoc_backend', '')
-      \. ' %'
 
 " headings
 nnoremap <leader>1 :call asciidoc#set_section_title_level(1)<cr>

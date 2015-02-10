@@ -8,6 +8,31 @@ __Enhanced editing support for http://asciidoc.org[Asciidoc] files in Vim__
 * https://github.com/dahu/Asif[]
 * (optional) https://github.com/vim-scripts/SyntaxRange[]
 
+=== Compilers
+
+vim-asciidoc provides:
+
+[style="horizontal"]
+`:compiler asciidoc` :: To use the original Python Asciidoc
+`:compiler asciidoctor` :: To use the newer Ruby Asciidoctor
+
+Each compiler provides a `:Theme` command for changing the style-sheet.
+
+.Asciidoc
+
+[style="horizontal"]
+`g:asciidoc_themes` :: The list of installed themes, defaulting to the
+two themes that come with standard asciidoc, _flask_ and _volnitsky_.
+
+`g:asciidoc_theme` :: The name of your preferred default theme,
+defaulting to the asciidoc default blue stylesheet.
+
+.Asciidoctor
+
+`g:asciidoctor_themes_dir` :: The location of your CSS stylesheets
+`g:asciidoctor_theme` :: The name of your preferred default theme,
+defaulting to the asciidoctor default red stylesheet.
+
 === Headings
 
 The key sequence `<leader>1` will turn the current line into a level 1
