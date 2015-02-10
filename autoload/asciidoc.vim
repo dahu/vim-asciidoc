@@ -7,8 +7,13 @@ let s:setext_title = '\_^\(\S.\+\)\s*\n' . s:setext_title_underline
 let s:setext_levels = ['=','-', '~', '^', '+']
 
 function! asciidoc#find_prior_section_title()
+  let old_pos = getpos('.')
+  let pos = old_pos
+  let pos[2] = 0
+  call setpos('.', pos)
   let prior_atx = search(s:atx_title, 'Wbn')
   let prior_setext = search(s:setext_title, 'Wbn')
+  call setpos('.', old_pos)
   let prior = max([prior_atx, prior_setext])
   if prior == 0
     return

@@ -33,12 +33,26 @@ defaulting to the asciidoc default blue stylesheet.
 `g:asciidoctor_theme` :: The name of your preferred default theme,
 defaulting to the asciidoctor default red stylesheet.
 
+==== Live Reload
+
+The https://wiki.gnome.org/Apps/Web[Epiphany browser] automatically
+refreshes when it detects that the source has been updated. This makes
+for a wonderful previewer when editing asciidoc files. Just run
+`:make` and switch to Epiphany and watch it auto-refresh. Chrome has
+plugins
+(https://chrome.google.com/webstore/detail/livepage/pilnojpmdoofaelbinaeodfpjheijkbh[LivePage]
+and
+https://chrome.google.com/webstore/detail/livereload/jnihajbhpnppcggbcgedagnkighmdlei[LiveReload])
+for the same effect.
+
 === Headings
 
 The key sequence `<leader>1` will turn the current line into a level 1
 heading using the current heading style as defined in
 `g:asciidoc_title_style` (_setext_, or the default, _atx_). Similar
 mappings exist for heading levels 2-5.
+
+The Vim _section keys_ (`[[ ]] [] ][`) will move you between headings.
 
 ==== Heading Styles
 
@@ -97,6 +111,8 @@ Use the following visual mode list building commands:
 By default, Vim does the wrong thing by reformatting Asciidoc's block
 delimiters as part of the paragraph. This plugin fixes that problem,
 correctly formatting blocks, lists and normal paragraphs.
+
+Use the `Q` key to reformat the current _block_.
 
 === Syntax Highlighting
 
