@@ -74,10 +74,18 @@ let s:asciidoc.list_pattern = ERex.parse('
       \   )
       \   \s\+
       \ \|
+      \ \%(\_^\|\n\)       # definition_list
+      \   \%(\_^\|\n\)
+      \   \%(\S\+\s\+\)\+
+      \   ::\+
+      \   \s\+
+      \   \%(\w\+\)\@=
+      \ \|
       \ \%(\_^\|\n\)       # implicit
       \   \s*
       \   [-*+.]\+
       \   \s\+
+      \   \%(\w\+\)\@=
       \')
 
 " DEPRECATED after accurate list_pattern definition above
@@ -126,16 +134,38 @@ endfunction
 " autofmt example.
 
 " Easily reflow text
-" the gQ form (badly) tries to keep cursor position
-nnoremap <silent> <buffer> Q :call <SID>Q(1)<cr>
-nnoremap <silent> <buffer> gQ :call <SID>Q(0)<cr>
+" the  Q form (badly) tries to keep cursor position
+" the gQ form subsequently jumps over the reformatted block
+nnoremap <silent> <buffer> Q  :call <SID>Q(0)<cr>
+nnoremap <silent> <buffer> gQ :call <SID>Q(1)<cr>
 
 function! s:Q(skip_block_after_format)
-  let pos = getpos('.')
+  if ! a:skip_block_after_format
+    let save_clip = @*
+    let save_reg  = @@
+    let tos       = line('w0')
+    let pos       = getpos('.')
+    norm! v{y
+    call setpos('.', pos)
+    let word_count = len(split(@@, '\_s\+'))
+  endif
+
   norm! gqap
-  call setpos('.', pos)
+
   if a:skip_block_after_format
     normal! }
+  else
+    let scrolloff = &scrolloff
+    set scrolloff=0
+    call setpos('.', pos)
+    exe 'norm! {' . word_count . 'W'
+    let pos = getpos('.')
+    call cursor(tos, 1)
+    norm! zt
+    call setpos('.', pos)
+    let &scrolloff = scrolloff
+    let @* = save_clip
+    let @@ = save_reg
   endif
 endfunction
 
@@ -218,7 +248,12 @@ function s:asciidoc.reformat_text(lnum, last_line)
     let elems = (type(elems[0]) == type([]) ? elems : [elems])
     for chunk in map(elems
           \ , 'v:val[0] . string#trim(substitute(v:val[1], "\\n\\s\\+", " ", "g"))')
-      call extend(formatted, s:asciidoc.reformat_chunk(chunk))
+      if chunk =~ "^+\n"
+        call extend(formatted, ['+'])
+        call extend(formatted, s:asciidoc.reformat_chunk(matchstr(chunk, "^+\n\\zs.*")))
+      else
+        call extend(formatted, s:asciidoc.reformat_chunk(chunk))
+      endif
     endfor
     if formatted != lines
       call s:asciidoc.replace_chunk(formatted, lnum, last_line)
