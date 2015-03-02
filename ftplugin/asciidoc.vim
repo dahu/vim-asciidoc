@@ -95,9 +95,21 @@ let s:asciidoc.list_pattern = ERex.parse('
 exe 'syn match asciidocListBullet /' . s:asciidoc.list_pattern . '/'
 let &l:formatlistpat=s:asciidoc.list_pattern
 
-"Typing "" in insert mode inserts a pair of quotes (``'') and places the
-"cursor between them.
-inoremap "" ``''<ESC>hi
+"Typing "" in insert mode inserts a pair of smart quotes and places the
+"cursor between them. Depends on asciidoc/asciidoctor flavour. Off by default.
+
+if ! exists('g:asciidoc_smartquotes')
+  let g:asciidoc_smartquotes = 0
+endif
+if ! exists('g:asciidoctor_smartquotes')
+  let g:asciidoctor_smartquotes = 0
+endif
+
+if g:asciidoc_smartquotes
+  inoremap "" ``''<ESC>hi
+elseif g:asciidoctor_smartquotes
+  inoremap "" "``"<ESC>hi
+endif
 
 " indent
 " ------
