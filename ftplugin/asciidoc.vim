@@ -20,7 +20,10 @@ if &spelllang == ''
 endif
 
 setlocal spell
-setlocal autoindent expandtab softtabstop=2 shiftwidth=2 textwidth=70 wrap
+setlocal autoindent expandtab softtabstop=2 shiftwidth=2 wrap
+if &textwidth == 0
+  setlocal textwidth=70
+endif
 setlocal comments=://
 setlocal commentstring=//\ %s
 
