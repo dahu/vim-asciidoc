@@ -82,13 +82,13 @@ let s:asciidoc.list_pattern = ERex.parse('
       \   \%(\S\+\s\+\)\+
       \   ::\+
       \   \s\+
-      \   \%(\w\+\)\@=
+      \   \%(\S\+\)\@=
       \ \|
       \ \%(\_^\|\n\)       # implicit
       \   \s*
       \   [-*+.]\+
       \   \s\+
-      \   \%(\w\+\)\@=
+      \   \%(\S\+\)\@=
       \')
 
 " DEPRECATED after accurate list_pattern definition above
@@ -244,7 +244,7 @@ function s:asciidoc.reformat_text(lnum, last_line)
   let lines = getline(lnum, a:last_line)
 
   let block = s:asciidoc.identify_block(lines[0])
-  " echom 'block=' . block
+  echom 'block=' . block
 
   if block == 'literal'
     " nothing to do
@@ -284,12 +284,11 @@ function s:asciidoc.identify_block(line)
   let line = a:line
   if line =~ self.list_pattern
     return 'list'
-  elseif line =~ '^[*_`+]\{0,2}\a'
+  elseif line =~ '^[*_`+]\{0,2}\S'
     return 'para'
   elseif line =~ '^\s\+'
     return 'literal'
   else
-    echom "what are you, my pretty?"
     return 'unknown'
   endif
 endfunction
