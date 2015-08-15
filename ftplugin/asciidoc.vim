@@ -32,27 +32,30 @@ setlocal indentkeys=!^F,o,O
 setlocal nosmartindent nocindent
 
 " headings
-nnoremap <leader>1 :call asciidoc#set_section_title_level(1)<cr>
-nnoremap <leader>2 :call asciidoc#set_section_title_level(2)<cr>
-nnoremap <leader>3 :call asciidoc#set_section_title_level(3)<cr>
-nnoremap <leader>4 :call asciidoc#set_section_title_level(4)<cr>
-nnoremap <leader>5 :call asciidoc#set_section_title_level(5)<cr>
+nnoremap <buffer> <leader>1 :call asciidoc#set_section_title_level(1)<cr>
+nnoremap <buffer> <leader>2 :call asciidoc#set_section_title_level(2)<cr>
+nnoremap <buffer> <leader>3 :call asciidoc#set_section_title_level(3)<cr>
+nnoremap <buffer> <leader>4 :call asciidoc#set_section_title_level(4)<cr>
+nnoremap <buffer> <leader>5 :call asciidoc#set_section_title_level(5)<cr>
 
 " TODO: Make simple 'j/k' offsets honour setext style sections
-nnoremap <expr><silent> [[ asciidoc#find_prior_section_title()
-nnoremap <expr><silent> [] asciidoc#find_prior_section_title() . 'j'
-nnoremap <expr><silent> ]] asciidoc#find_next_section_title()
-nnoremap <expr><silent> ][ asciidoc#find_next_section_title() . 'k'
+nnoremap <buffer> <expr><silent> [[ asciidoc#find_prior_section_title()
+nnoremap <buffer> <expr><silent> [] asciidoc#find_prior_section_title() . 'j'
+nnoremap <buffer> <expr><silent> ]] asciidoc#find_next_section_title()
+nnoremap <buffer> <expr><silent> ][ asciidoc#find_next_section_title() . 'k'
 
-xnoremap <expr><silent> [[ asciidoc#find_prior_section_title()
-xnoremap <expr><silent> [] asciidoc#find_prior_section_title() . 'j'
-xnoremap <expr><silent> ]] asciidoc#find_next_section_title()
-xnoremap <expr><silent> ][ asciidoc#find_next_section_title() . 'k'
+xnoremap <buffer> <expr><silent> [[ asciidoc#find_prior_section_title()
+xnoremap <buffer> <expr><silent> [] asciidoc#find_prior_section_title() . 'j'
+xnoremap <buffer> <expr><silent> ]] asciidoc#find_next_section_title()
+xnoremap <buffer> <expr><silent> ][ asciidoc#find_next_section_title() . 'k'
 
-xnoremap <silent> lu :call asciidoc#make_list('*')<cr>gv
-xnoremap <silent> lo :call asciidoc#make_list('.')<cr>gv
-xnoremap <silent> l< :call asciidoc#dent_list('in')<cr>gv
-xnoremap <silent> l> :call asciidoc#dent_list('out')<cr>gv
+xnoremap <buffer> <silent> lu :call asciidoc#make_list('*')<cr>gv
+xnoremap <buffer> <silent> lo :call asciidoc#make_list('.')<cr>gv
+xnoremap <buffer> <silent> l< :call asciidoc#dent_list('in')<cr>gv
+xnoremap <buffer> <silent> l> :call asciidoc#dent_list('out')<cr>gv
+
+nmap     <buffer> <leader>lu viplu<c-\><c-n>``
+nmap     <buffer> <leader>lo viplo<c-\><c-n>``
 
 let s:asciidoc = {}
 let s:asciidoc.delimited_block_pattern = '^[-.~_+^=*\/]\{4,}\s*$'
@@ -109,9 +112,9 @@ if ! exists('g:asciidoctor_smartquotes')
 endif
 
 if g:asciidoc_smartquotes
-  inoremap "" ``''<ESC>hi
+  inoremap <buffer> "" ``''<ESC>hi
 elseif g:asciidoctor_smartquotes
-  inoremap "" "``"<ESC>hi
+  inoremap <buffer> "" "``"<ESC>hi
 endif
 
 " indent
