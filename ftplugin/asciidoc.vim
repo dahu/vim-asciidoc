@@ -30,6 +30,7 @@ setlocal commentstring=//\ %s
 setlocal formatoptions+=tcroqln2
 setlocal indentkeys=!^F,o,O
 setlocal nosmartindent nocindent
+setlocal isk-=_
 
 " headings
 nnoremap <buffer> <leader>1 :call asciidoc#set_section_title_level(1)<cr>
