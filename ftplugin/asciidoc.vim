@@ -33,11 +33,11 @@ setlocal nosmartindent nocindent
 setlocal isk-=_
 
 " headings
-nnoremap <buffer> <leader>1 :call asciidoc#set_section_title_level(1)<cr>
-nnoremap <buffer> <leader>2 :call asciidoc#set_section_title_level(2)<cr>
-nnoremap <buffer> <leader>3 :call asciidoc#set_section_title_level(3)<cr>
-nnoremap <buffer> <leader>4 :call asciidoc#set_section_title_level(4)<cr>
-nnoremap <buffer> <leader>5 :call asciidoc#set_section_title_level(5)<cr>
+nnoremap <buffer> <leader>0 :call asciidoc#set_section_title_level(1)<cr>
+nnoremap <buffer> <leader>1 :call asciidoc#set_section_title_level(2)<cr>
+nnoremap <buffer> <leader>2 :call asciidoc#set_section_title_level(3)<cr>
+nnoremap <buffer> <leader>3 :call asciidoc#set_section_title_level(4)<cr>
+nnoremap <buffer> <leader>4 :call asciidoc#set_section_title_level(5)<cr>
 
 " TODO: Make simple 'j/k' offsets honour setext style sections
 nnoremap <buffer> <expr><silent> [[ asciidoc#find_prior_section_title()
