@@ -6,6 +6,7 @@ __Enhanced editing support for http://asciidoc.org[Asciidoc] files in Vim__
 
 * https://github.com/dahu/vimple[]
 * https://github.com/dahu/Asif[]
+* https://github.com/Raimondi/VimRegStyle[]
 * (optional) https://github.com/vim-scripts/SyntaxRange[]
 
 === Compilers
