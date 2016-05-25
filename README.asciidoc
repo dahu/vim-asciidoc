@@ -36,15 +36,17 @@ defaulting to the asciidoctor default red stylesheet.
 
 ==== Live Reload
 
-The https://wiki.gnome.org/Apps/Web[Epiphany browser] automatically
+- The https://wiki.gnome.org/Apps/Web[Epiphany browser] automatically
 refreshes when it detects that the source has been updated. This makes
 for a wonderful previewer when editing asciidoc files. Just run
-`:make` and switch to Epiphany and watch it auto-refresh. Chrome has
-plugins
+`:make` and switch to Epiphany and watch it auto-refresh. 
+- Firefox has the plugin 
+ (https://addons.mozilla.org/fr/firefox/addon/auto-reload[AutoReload]), and
+- Chrome has the plugins
 (https://chrome.google.com/webstore/detail/livepage/pilnojpmdoofaelbinaeodfpjheijkbh[LivePage]
 and
 https://chrome.google.com/webstore/detail/livereload/jnihajbhpnppcggbcgedagnkighmdlei[LiveReload])
-for the same effect.
+to the same effect.
 
 === Headings
 
