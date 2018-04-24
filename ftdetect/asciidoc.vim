@@ -16,6 +16,11 @@ augroup END
 " leading comments.
 " Original code by Stuart Rackham <srackham@gmail.com>
 function! s:FTasciidoc()
+  " this check doesn't play well with
+  " some CMake files and should be skipped
+  if expand('%:t') == "CMakeLists.txt"
+    return
+  endif
   let in_comment_block = 0
   let n = 1
   while n < 50
