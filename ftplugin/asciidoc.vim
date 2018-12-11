@@ -207,8 +207,7 @@ function s:asciidoc.formatexpr()
   if mode() == 'n'
     return self.format_normal_mode(v:lnum, v:count - 1)
   else
-    " We don't actually do anything in insert mode yet
-    " return self.format_insert_mode(v:char)
+    return self.format_insert_mode(v:char)
   endif
 endfunction
 
@@ -387,6 +386,10 @@ function s:asciidoc.find_last_line(lnum)
 endfunction
 
 function s:asciidoc.format_insert_mode(char)
+  " We don't actually do anything special in insert mode yet.
+  " A non-zero return code here uses Vim's internal formatters based on the
+  " options set.
+  return 1
 endfunction
 
 function s:asciidoc.skip_white_lines(lnum)
